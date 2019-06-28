@@ -11,3 +11,12 @@ Change to the directory of the files and call the main script from the command l
 $ cd path/to/nwb_vis_cp
 $ python nwb_vis_cp.py '/path/to/file.nwb'
 ```
+
+The GUI will discriminate the `file.nwb` fields in a tree. Choosing a specific field will print it's content. 
+
+![screenshot1](media/screenshot_1.png)
+
+
+You have access to an IPython console to investigate the data even further:
+
+![screenshot2](media/screenshot_2.png)
