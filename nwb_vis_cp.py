@@ -19,15 +19,6 @@ class Application(QMainWindow):
         self.resize(1000, 600)
         self.setWindowTitle('Copy NWB')
 
-        # Open file ------------------------------------------------------------
-        if not os.path.isfile(filename):
-            self.open_file()
-        else:
-            self.file = filename
-            self.io = NWBHDF5IO(self.file,'r+')
-            self.nwb = self.io.read()      #reads NWB file
-            self.fields = list(self.nwb.fields.keys())
-
         # Window layout --------------------------------------------------------
         self.tree = QTreeWidget ()
         self.tree.itemClicked.connect(self.onItemClicked)
@@ -56,8 +47,16 @@ class Application(QMainWindow):
         self.hbox.addLayout(self.grid1)    #add first tree
         self.hbox.addLayout(self.vbox2)    #add second tree
 
-        self.init_tree()
-        self.init_console()
+        # Open file ------------------------------------------------------------
+        if not os.path.isfile(filename):
+            self.open_file()
+        else:
+            self.file = filename
+            self.io = NWBHDF5IO(self.file,'r+')
+            self.nwb = self.io.read()      #reads NWB file
+            self.fields = list(self.nwb.fields.keys())
+            self.init_tree()
+            self.init_console()
         self.show()
 
     def open_file(self):
