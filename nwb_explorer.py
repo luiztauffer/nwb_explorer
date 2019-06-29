@@ -17,7 +17,7 @@ class Application(QMainWindow):
         self.centralwidget = QWidget()
         self.setCentralWidget(self.centralwidget)
         self.resize(1000, 600)
-        self.setWindowTitle('Copy NWB')
+        self.setWindowTitle('NWB explorer')
 
         # Window layout --------------------------------------------------------
         self.tree = QTreeWidget ()
