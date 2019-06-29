@@ -17,7 +17,6 @@ class Application(QMainWindow):
         self.centralwidget = QWidget()
         self.setCentralWidget(self.centralwidget)
         self.resize(1000, 600)
-        self.setWindowTitle('NWB explorer')
 
         # Window layout --------------------------------------------------------
         self.tree = QTreeWidget ()
@@ -57,6 +56,8 @@ class Application(QMainWindow):
             self.fields = list(self.nwb.fields.keys())
             self.init_tree()
             self.init_console()
+
+        self.setWindowTitle('NWB explorer - '+os.path.split(os.path.abspath(self.file))[1])
         self.show()
 
     def open_file(self):
@@ -67,6 +68,7 @@ class Application(QMainWindow):
             self.io = NWBHDF5IO(self.file,'r+')
             self.nwb = self.io.read()      #reads NWB file
             self.fields = list(self.nwb.fields.keys())
+            self.setWindowTitle('NWB explorer - '+os.path.split(os.path.abspath(self.file))[1])
             self.init_tree()
             self.init_console()
 
