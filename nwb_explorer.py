@@ -3,8 +3,9 @@ from PyQt5.QtWidgets import (QWidget, QApplication, QTreeWidget, QTreeWidgetItem
     QMainWindow, QFileDialog, QAction, QVBoxLayout, QHBoxLayout, QGridLayout,
     QPushButton)
 
-import nwbext_ecog
 from pynwb import NWBHDF5IO
+import nwbext_ecog
+from ndx_spectrum import Spectrum
 
 from console_widget import ConsoleWidget
 import os
