@@ -96,6 +96,14 @@ class Application(QMainWindow):
                     child.setFlags(child.flags() | QtCore.Qt.ItemIsUserCheckable)
                     child.setText(0, subf)
                     child.setCheckState(0, QtCore.Qt.Unchecked)
+                    if subf=='ecephys':  #children of 'ecephys'
+                        child.setFlags(child.flags() | QtCore.Qt.ItemIsTristate )
+                        for subf2 in list(self.nwb.fields[field][subf].data_interfaces.keys()):
+                            gchild = QTreeWidgetItem(child)
+                            gchild.setFlags(gchild.flags() | QtCore.Qt.ItemIsUserCheckable)
+                            gchild.setText(0, subf2)
+                            gchild.setCheckState(0, QtCore.Qt.Unchecked)
+
             #if len(self.nwb.fields[field])==0:
             #    font = QtGui.QFont()
             #    font.setWeight(6)
@@ -118,14 +126,20 @@ class Application(QMainWindow):
         if self.auto_clear:
             self.console.clear()
         if it.parent() is not None:
-            field0 = it.parent().text(0)
-            field1 = it.text(0)
-            item = self.nwb.fields[field0][field1]
+            field1 = it.parent().text(0)
+            field0 = it.text(0)
+            if it.parent().parent() is not None:
+                field2 = it.parent().parent().text(0)
+                if field1=='ecephys':
+                    item = self.nwb.fields[field2][field1].data_interfaces[field0]
+            else:
+                item = self.nwb.fields[field1][field0]
         else:
-            field1 = it.text(0)
-            item = self.nwb.fields[field1]
+            field0 = it.text(0)
+            item = self.nwb.fields[field0]
         self.console.push_vars({'item':item})
         self.console._execute("print(item)", False)
+        #self.console.push_vars({'it':it})
 
 
 if __name__ == '__main__':
