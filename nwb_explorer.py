@@ -1,11 +1,12 @@
 from PyQt5 import QtCore, QtGui, Qt
 from PyQt5.QtWidgets import (QWidget, QApplication, QTreeWidget, QTreeWidgetItem,
     QMainWindow, QFileDialog, QAction, QVBoxLayout, QHBoxLayout, QGridLayout,
-    QPushButton)
+    QPushButton, QTreeWidgetItemIterator)
 
 from pynwb import NWBHDF5IO
 import nwbext_ecog
 from ndx_spectrum import Spectrum
+from nwb_copy.nwb_copy import nwb_copy
 
 from console_widget import ConsoleWidget
 import os
@@ -25,6 +26,7 @@ class Application(QMainWindow):
         self.push1_0 = QPushButton('Open NWB file')
         self.push1_0.clicked.connect(self.open_file)
         self.push2_0 = QPushButton('Export NWB file')
+        self.push2_0.clicked.connect(self.export_file)
         self.push3_0 = QPushButton('Auto-clear')
         self.push3_0.setCheckable(True)
         self.push3_0.setChecked(True)
@@ -70,8 +72,35 @@ class Application(QMainWindow):
             self.nwb = self.io.read()      #reads NWB file
             self.fields = list(self.nwb.fields.keys())
             self.setWindowTitle('NWB explorer - '+os.path.split(os.path.abspath(self.file))[1])
+            self.cp_objs = {}
             self.init_tree()
             self.init_console()
+
+    def export_file(self):
+        self.find_selected_items()
+        cp_path = r'C:\Users\Luiz\Desktop\file_copy.nwb'
+        nwb_copy(old_file=self.file, new_file=cp_path, cp_objs=self.cp_objs)
+
+    def find_selected_items(self):
+        """Iterate over all children of the tree and save selected items to dictionary."""
+        self.cp_objs = {}
+        self.iterator = QTreeWidgetItemIterator(self.tree, QTreeWidgetItemIterator.All)
+        while self.iterator.value():
+            item = self.iterator.value()
+            if item.checkState(0)==2: #full-box checked, add item to dictionary
+                if item.parent() is not None: #2nd level item (at least)
+                    if item.parent().text(0) in self.cp_objs:  #append if parent already present as key in dictionary
+                        if self.cp_objs[item.parent().text(0)]==True: #remove boolean parent key:value
+                            self.cp_objs.pop(item.parent().text(0), None)
+                            self.cp_objs[item.parent().text(0)] = [item.text(0)]
+                        else:
+                            self.cp_objs[item.parent().text(0)].append(item.text(0))
+                    else: #add new list with item, if parent not yet a key in dictionary
+                        self.cp_objs[item.parent().text(0)] = [item.text(0)]
+                else:  #1st level item
+                    self.cp_objs[item.text(0)] = True
+            self.iterator += 1
+        self.console.push_vars({'cpobj':self.cp_objs})
 
     def toggle_auto_clear(self):
         ''' Toggle auto-clear console screen function'''
@@ -103,7 +132,6 @@ class Application(QMainWindow):
                             gchild.setFlags(gchild.flags() | QtCore.Qt.ItemIsUserCheckable)
                             gchild.setText(0, subf2)
                             gchild.setCheckState(0, QtCore.Qt.Unchecked)
-
             #if len(self.nwb.fields[field])==0:
             #    font = QtGui.QFont()
             #    font.setWeight(6)
@@ -120,26 +148,30 @@ class Application(QMainWindow):
         self.console.clear()
         #self.console.execute_command("")
 
-    #@QtCore.pyqtSlot(QTreeWidgetItem, int)
     def onItemClicked(self, it, col):
-        #print(it, col, it.text(col))
-        if self.auto_clear:
+        if self.auto_clear:  #clears terminal
             self.console.clear()
-        if it.parent() is not None:
+        if it.parent() is not None: #2nd level groups (at least)
             field1 = it.parent().text(0)
             field0 = it.text(0)
-            if it.parent().parent() is not None:
+            if it.parent().parent() is not None: #3rd level groups
                 field2 = it.parent().parent().text(0)
                 if field1=='ecephys':
                     item = self.nwb.fields[field2][field1].data_interfaces[field0]
             else:
+                field2 = None
                 item = self.nwb.fields[field1][field0]
-        else:
+        else: #1st level groups ('acquisition','electrodes', etc...)
+            field2 = None
+            field1 = None
             field0 = it.text(0)
             item = self.nwb.fields[field0]
+        self.console.push_vars({'tree':self.tree})
         self.console.push_vars({'item':item})
         self.console._execute("print(item)", False)
-        #self.console.push_vars({'it':it})
+
+
+
 
 
 if __name__ == '__main__':
