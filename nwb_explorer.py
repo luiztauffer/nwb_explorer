@@ -71,6 +71,7 @@ class Application(QMainWindow):
             self.io = NWBHDF5IO(self.file,'r+')
             self.nwb = self.io.read()      #reads NWB file
             self.fields = list(self.nwb.fields.keys())
+            self.fields.sort()  #sort fields alphabetically
             self.setWindowTitle('NWB explorer - '+os.path.split(os.path.abspath(self.file))[1])
             self.cp_objs = {}
             self.init_tree()
@@ -80,6 +81,9 @@ class Application(QMainWindow):
         self.find_selected_items()
         cp_path = r'C:\Users\Luiz\Desktop\file_copy.nwb'
         nwb_copy(old_file=self.file, new_file=cp_path, cp_objs=self.cp_objs)
+        self.console.clear()
+        self.console.push_vars({'cp_path':cp_path})
+        self.console._execute("print('File exported: ', cp_path)", False)
 
     def find_selected_items(self):
         """Iterate over all children of the tree and save selected items to dictionary."""
