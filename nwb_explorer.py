@@ -104,7 +104,7 @@ class Application(QMainWindow):
                 else:  #1st level item
                     self.cp_objs[item.text(0)] = True
             self.iterator += 1
-        self.console.push_vars({'cpobj':self.cp_objs})
+        self.console.push_vars({'cp_objs':self.cp_objs})
 
     def toggle_auto_clear(self):
         ''' Toggle auto-clear console screen function'''
