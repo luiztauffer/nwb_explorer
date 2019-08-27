@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import (QWidget, QApplication, QTreeWidget, QTreeWidgetItem
 from pynwb import NWBHDF5IO
 import nwbext_ecog
 from ndx_spectrum import Spectrum
+from ndx_grayscalevolume import GrayscaleVolume
 from nwb_copy.nwb_copy import nwb_copy
 
 from console_widget import ConsoleWidget
